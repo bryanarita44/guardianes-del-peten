@@ -3,7 +3,7 @@ from animal import Animal
 
 class Jaguar(Animal):
     def __init__(self, codigo, nombre, territorio_km2=50):
-        super().__init__(codigo, nombre, "jaguar", True)
+        super().__init__(codigo, nombre, True)
         self.territorio_km2 = territorio_km2  # atributo propio del jaguar
 
     def descripcion(self):
@@ -15,3 +15,8 @@ class Jaguar(Animal):
         if self.territorio_km2 >= 50:
             return "grande"
         return "pequeño"
+
+    def describir(self):
+        return (f"{self.nombre} es un jaguar. Come carne (venados, peces, caimanes). "
+                f"Vive en la selva, cerca de ríos y lagunas, con un territorio de {self.territorio_km2} km2. "
+                "Se mueve solo, de noche, y sabe nadar y trepar.")

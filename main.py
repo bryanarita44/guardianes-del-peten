@@ -1,3 +1,4 @@
+from animal import Animal
 from sistema import SistemaMonitoreo
 
 sistema = SistemaMonitoreo()
@@ -93,3 +94,12 @@ venado = sistema.buscar_animal("VEN-001")
 print("Venado    | heredado  tiene_collar():", venado.tiene_collar())
 print("Venado    | sobrescrito descripcion():", venado.descripcion())
 print("Venado    | propio    es_macho():", venado.es_macho())
+
+print("\n=== POLIMORFISMO (Entrega 3) ===")
+# Un solo ciclo recorre a todos los animales, sin preguntar de qué especie es cada uno
+for animal in sistema.animales:
+    print("-", animal.describir())
+
+print("\n=== ANIMAL ABSTRACTO ===")
+print("Al intentar crear un Animal directo (debe dar TypeError):")
+Animal("ANI-001", "Animal a secas", False)
