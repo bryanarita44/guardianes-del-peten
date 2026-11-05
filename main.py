@@ -100,6 +100,37 @@ print("\n=== POLIMORFISMO (Entrega 3) ===")
 for animal in sistema.animales:
     print("-", animal.describir())
 
+print("\n=== ORDENAR ALERTAS (Entrega 4) ===")
+# Cinco alertas nuevas, a propósito en desorden (altas y medias, con horas distintas)
+sistema.crear_alerta("batería baja", "media", "Collar COL-04 con 7 % de batería", "14:20")
+sistema.crear_alerta("acercamiento a comunidad", "alta", "Balam (JAG-001) en Uaxactún", "16:45")
+sistema.crear_alerta("batería baja", "media", "Collar COL-05 con 5 % de batería", "05:10")
+sistema.crear_alerta("acercamiento a comunidad", "alta", "Tziquin (TAP-001) en Uaxactún", "09:30")
+sistema.crear_alerta("acercamiento a comunidad", "alta", "Kinich (GUA-001) en Uaxactún", "06:15")
+
+print("\nLista ANTES de ordenar:")
+for alerta in sistema.alertas:
+    print(f"  #{alerta.numero} [{alerta.prioridad}] {alerta.hora} - {alerta.detalle}")
+
+sistema.ordenar_alertas()
+
+print("\nLista DESPUÉS de ordenar (altas primero; entre iguales, la hora más temprana):")
+for alerta in sistema.alertas:
+    print(f"  #{alerta.numero} [{alerta.prioridad}] {alerta.hora} - {alerta.detalle}")
+
+print("\n=== BUSCAR ANIMAL POR CÓDIGO (Entrega 4) ===")
+# buscar_animal ordena la lista por código y luego busca partiéndola a la mitad
+primero = sistema.buscar_animal("COC-001")   # el primero de la lista ordenada
+ultimo = sistema.buscar_animal("VEN-001")    # el último de la lista ordenada
+no_existe = sistema.buscar_animal("XXX-000") # no existe
+
+print("Animales ordenados por código:")
+for animal in sistema.animales:
+    print("  ", animal.codigo)
+print("Buscar COC-001 (el primero):", primero.descripcion())
+print("Buscar VEN-001 (el último):", ultimo.descripcion())
+print("Buscar XXX-000 (no existe):", no_existe)
+
 print("\n=== ANIMAL ABSTRACTO ===")
 print("Al intentar crear un Animal directo (debe dar TypeError):")
 Animal("ANI-001", "Animal a secas", False)

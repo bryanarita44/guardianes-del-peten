@@ -11,6 +11,13 @@ from guardarrecursos import Guardarrecursos
 from servicio_sms import ServicioSMS
 
 
+def nivel(alerta):
+    # Entrega 4: convierte la prioridad (texto) en un número para poder compararla
+    if alerta.prioridad == "alta":
+        return 1
+    return 2
+
+
 class SistemaMonitoreo:
     # Artículo 2: especies conocidas y si están en peligro (venado cola blanca es la especie agregada)
     ESPECIES = {
@@ -48,9 +55,29 @@ class SistemaMonitoreo:
     # Búsquedas: recorren las listas
     # ------------------------------------------------------------------
     def buscar_animal(self, codigo):
-        for animal in self.animales:
+        # Entrega 4: búsqueda binaria. Primero se ordena la lista por código (selección)
+        total = len(self.animales)
+        for i in range(total - 1):
+            menor = i
+            for j in range(i + 1, total):
+                if self.animales[j].codigo < self.animales[menor].codigo:
+                    menor = j
+            if menor != i:
+                temporal = self.animales[i]
+                self.animales[i] = self.animales[menor]
+                self.animales[menor] = temporal
+        # Ahora se parte la lista a la mitad hasta encontrar el código
+        inicio = 0
+        fin = len(self.animales) - 1
+        while inicio <= fin:
+            medio = (inicio + fin) // 2
+            animal = self.animales[medio]
             if animal.codigo == codigo:
                 return animal
+            if codigo < animal.codigo:
+                fin = medio - 1
+            else:
+                inicio = medio + 1
         return None
 
     def buscar_collar(self, codigo):
@@ -146,11 +173,28 @@ class SistemaMonitoreo:
         print(f"Collar registrado: {codigo} con {bateria} % de batería")
         return collar
 
-    def crear_alerta(self, tipo, prioridad, detalle):
-        alerta = Alerta(len(self.alertas) + 1, tipo, prioridad, detalle)
+    def crear_alerta(self, tipo, prioridad, detalle, hora):
+        alerta = Alerta(len(self.alertas) + 1, tipo, prioridad, detalle, hora)
         self.alertas.append(alerta)
-        print(f"Alerta #{alerta.numero} creada ({tipo}, prioridad {prioridad}): {detalle}")
+        print(f"Alerta #{alerta.numero} creada ({tipo}, prioridad {prioridad}, {hora}): {detalle}")
         return alerta
+
+    def ordenar_alertas(self):
+        # Entrega 4: ordenamiento por selección. Primero las altas, y entre iguales la hora más temprana
+        total = len(self.alertas)
+        for i in range(total - 1):
+            menor = i
+            for j in range(i + 1, total):
+                actual = self.alertas[j]
+                mejor = self.alertas[menor]
+                if nivel(actual) < nivel(mejor):
+                    menor = j
+                elif nivel(actual) == nivel(mejor) and actual.hora < mejor.hora:
+                    menor = j
+            if menor != i:
+                temporal = self.alertas[i]
+                self.alertas[i] = self.alertas[menor]
+                self.alertas[menor] = temporal
 
     # ------------------------------------------------------------------
     # Casos de uso (siguen los diagramas de los anexos)
@@ -211,7 +255,7 @@ class SistemaMonitoreo:
         # Artículo 3: con menos de 10 % el collar no puede reportar
         if collar.bateria < 10:
             print(f"Lectura rechazada: el collar {collar.codigo} tiene {collar.bateria} % de batería (mínimo 10 %)")
-            self.crear_alerta("batería baja", "media", f"Collar {collar.codigo} con {collar.bateria} % de batería")
+            self.crear_alerta("batería baja", "media", f"Collar {collar.codigo} con {collar.bateria} % de batería", hora)
             return None
         # Artículo 5: solo se aceptan lecturas en zonas registradas
         zona = self.buscar_zona(nombre_zona)
@@ -227,7 +271,7 @@ class SistemaMonitoreo:
         # Artículo 6: animal en peligro en zona de uso múltiple
         if collar.animal.en_peligro and zona.tipo == "uso múltiple":
             detalle = f"{collar.animal.nombre} ({collar.animal.codigo}) en {zona.nombre}"
-            alerta = self.crear_alerta("acercamiento a comunidad", "alta", detalle)
+            alerta = self.crear_alerta("acercamiento a comunidad", "alta", detalle, hora)
             self.notificar_por_sms(alerta)
         return lectura
 
